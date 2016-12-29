@@ -16,6 +16,10 @@ using FirstFloor.ModernUI.Windows.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Reflection;
 
 namespace LogReader
 {
@@ -34,6 +38,7 @@ namespace LogReader
 		{
 			NDDirectory = DefaultSteamDirectory;
 			NDDirectory = TestDir;
+
 			//InitializeComponent();
 		}
 
@@ -109,6 +114,62 @@ namespace LogReader
 		{
 			LReader reader = new LReader(NDDirectory);
 			reader.Main();
+		}
+
+		private void btnSecTest_Click(object sender, RoutedEventArgs e)
+		{
+			DirectorySecurity sec = Directory.GetAccessControl(NDDirectory);
+			var acrl = sec.GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount));
+			SecurityIdentifier everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+			sec.AddAccessRule(new FileSystemAccessRule(everyone,
+				FileSystemRights.Modify | FileSystemRights.Synchronize,
+				InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+				PropagationFlags.None, AccessControlType.Allow));
+			Directory.SetAccessControl(NDDirectory, sec);
+		}
+
+		private void btnReflectionTest_Click(object sender, RoutedEventArgs e)
+		{
+			Type t = typeof(Item);
+			string target = "Player.Inventory";
+			string methodName = "Add";
+			string[] argTypeStrs = new string[] { "Item" };
+			Type[] argTypes = argTypeStrs.Select(s => Type.GetType(s)).ToArray();
+			object[] args = argTypes.Select(t => t.Con)
+			string[] tprops = target.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+			List<PropertyInfo> pInfos = new List<PropertyInfo>(tprops.Length);
+			object lastObj = this;
+			Type lastType = lastObj.GetType();
+			PropertyInfo lastPI;
+			for (int i = 0; i < tprops.Length; ++i)
+			{
+				lastPI = lastType.GetProperty(tprops[i]);
+				if (lastPI == null)
+					throw new Exception(string.Format("Couldn't find property {0} in {1}", tprops[i], target));
+				pInfos.Add(lastPI);
+				lastType = lastPI.PropertyType;
+				lastObj = lastPI.GetValue(lastObj);
+			}
+
+			//Type.GetType
+
+			MethodInfo mi = lastType.GetMethod(methodName, argTypes);
+			mi.Invoke(lastObj, )
+		}
+
+		PlayerObj Player { get; set; }
+
+		public class PlayerObj
+		{
+			public List<Item> Inventory { get; private set; }
+
+			public PlayerObj() { Inventory = new List<Item>();}
+
+		}
+
+		public class Item
+		{
+
 		}
 	}
 }

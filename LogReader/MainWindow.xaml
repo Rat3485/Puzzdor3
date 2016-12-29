@@ -21,6 +21,8 @@
                 </StackPanel>
             </StackPanel>
             <Button Name="btnOpenReader" Click="btnOpenReader_Click">Test Open and Read</Button>
+            <Button Name="btnSecTest" Click="btnSecTest_Click">Test Directory Access set</Button>
+            <Button Name="btnReflectionTest" Click="btnReflectionTest_Click">Test Reflection</Button>
         </StackPanel>
     </ScrollViewer>
 </mui:ModernWindow>

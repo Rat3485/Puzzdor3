@@ -18,3 +18,4 @@ C:\TFS\LogReader\LogReader\bin\Debug\Microsoft.WindowsAPICodePack.dll
 C:\TFS\LogReader\LogReader\bin\Debug\Microsoft.WindowsAPICodePack.Shell.dll
 C:\TFS\LogReader\LogReader\bin\Debug\Microsoft.WindowsAPICodePack.xml
 C:\TFS\LogReader\LogReader\bin\Debug\Microsoft.WindowsAPICodePack.Shell.xml
+C:\TFS\LogReader\LogReader\obj\Debug\LogReader.csprojResolveAssemblyReference.cache
