@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NecroLogs
 {
 	public class LogDispatcher
 	{
 		public List<LogTrigger> Triggers { get; private set; }
-		public List<TriggerEvent> Events { get; private set; }
+		public List<TriggerAction> Events { get; private set; }
 
 		public LogDispatcher(ILogEvents logEvents)
 		{
 			logEvents.OnLogEvent += _OnLogEvents;
 			Triggers = new List<LogTrigger>();
-			Events = new List<TriggerEvent>();
+			Events = new List<TriggerAction>();
 		}
 
 		private void _OnLogEvents(object sender, OnLogEventArgs e)

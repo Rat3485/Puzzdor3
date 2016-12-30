@@ -76,8 +76,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Actions\CreateItem.cs" />
+    <Compile Include="Models\Actions\EquipItem.cs" />
+    <Compile Include="Models\Actions\SetGameState.cs" />
+    <Compile Include="Models\Actions\LevelExit.cs" />
+    <Compile Include="Models\Actions\ToggleGameState.cs" />
+    <Compile Include="Models\GameFlags.cs" />
+    <Compile Include="Models\ItemTrigger.cs" />
+    <Compile Include="Models\Level.cs" />
     <Compile Include="LevelRepository.cs" />
-    <Compile Include="LevelTrigger.cs" />
+    <Compile Include="Models\LevelTrigger.cs" />
     <Compile Include="LogReader.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -85,7 +93,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoOrd.cs" />
+    <Compile Include="Utils\CoOrd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -118,6 +126,9 @@
       <Project>{565224de-4cc3-4e4e-b819-8de742570e43}</Project>
       <Name>NecroLogs</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Data\test.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

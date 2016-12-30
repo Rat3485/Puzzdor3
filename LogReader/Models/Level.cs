@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace LogReader
 {
-	public class LevelRepository
+	public class Level
 	{
-		//public string APIUrl { get; set; }
-
+		public string Name { get; set; }
+		public XmlDocument XmlDoc { get; set; }
+		
 
 	}
 }

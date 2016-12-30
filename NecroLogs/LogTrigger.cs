@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace NecroLogs
 {
 	public abstract class LogTrigger
 	{
-		public LogTrigger(int id)
+		public LogTrigger(string id)
 		{
 			Id = id;
 		}
@@ -18,7 +13,7 @@ namespace NecroLogs
 			get;
 		}
 
-		public int Id { get; private set; }
+		public string Id { get; private set; }
 
 		public bool Check(LogLine line)
 		{

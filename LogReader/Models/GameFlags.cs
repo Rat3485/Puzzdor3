@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace LogReader
 {
-	public class LevelRepository
+	[Flags]
+	public enum GameFlags
 	{
-		//public string APIUrl { get; set; }
-
 
 	}
 }
