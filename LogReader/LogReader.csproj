@@ -76,6 +76,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="LogAlert.cs" />
+    <Compile Include="LogReader.cs" />
     <Compile Include="Models\Actions\CreateItem.cs" />
     <Compile Include="Models\Actions\EquipItem.cs" />
     <Compile Include="Models\Actions\SetGameState.cs" />
@@ -86,13 +89,13 @@
     <Compile Include="Models\Level.cs" />
     <Compile Include="LevelRepository.cs" />
     <Compile Include="Models\LevelTrigger.cs" />
-    <Compile Include="LogReader.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NDLogInfo.cs" />
     <Compile Include="Utils\CoOrd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

@@ -20,6 +20,8 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace LogReader
 {
@@ -33,14 +35,54 @@ namespace LogReader
 		const string TestFile = "1.txt";
 
 		string ndDir;
+        bool? onlyItems = true;
+        List<LogAlert> alerts = new List<LogAlert>();
+        ObservableCollection<LogAlert> alertsObs;
+        bool? autoscroll = true;
+        LReader reader = null;
 
-		public MainWindow()
+        public MainWindow()
 		{
 			NDDirectory = DefaultSteamDirectory;
-			NDDirectory = TestDir;
+			//NDDirectory = TestDir;
 
-			//InitializeComponent();
-		}
+			InitializeComponent();
+            Binding asBinding = new Binding();
+            asBinding.Source = this;
+            asBinding.Path = new PropertyPath("AutoScroll");
+            asBinding.Mode = BindingMode.TwoWay;
+            asBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            BindingOperations.SetBinding(chkAutoScroll, CheckBox.IsCheckedProperty, asBinding);
+            Binding oiBinding = new Binding();
+            oiBinding.Source = this;
+            oiBinding.Path = new PropertyPath("ShowOnlyItems");
+            oiBinding.Mode = BindingMode.TwoWay;
+            oiBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            BindingOperations.SetBinding(chkShowOnlyItems, CheckBox.IsCheckedProperty, oiBinding);
+            alerts.Add(new LogAlert() { Trigger = "ring_becoming", AlertText = "BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING BECOMING " });
+            alertsObs = new ObservableCollection<LogAlert>(alerts);
+            dgAlerts.ItemsSource = alertsObs;
+
+            // Start the reader
+            if (reader == null)
+            {
+                reader = new LReader(NDDirectory);
+                reader.StartRead();
+                reader.OnLogEvent += Reader_OnLogEvent;
+            }
+        }
+        public bool? AutoScroll
+        {
+            get { return autoscroll; }
+            set
+            {
+                if (autoscroll != value)
+                {
+                    autoscroll = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
 
 		public string NDDirectory
 		{
@@ -50,12 +92,33 @@ namespace LogReader
 				if (value != ndDir)
 				{
 					ndDir = value;
+                    if (reader != null)
+                    {
+                        reader.NecrodancerDir = value;
+                        reader.StartRead();
+                    }
 					NotifyPropertyChanged();
 				}
 			}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+        public double TextDisplayWidth
+        {
+            get { return alertPanel.ActualWidth; }
+        }
+        public bool? ShowOnlyItems
+        {
+            get { return onlyItems; }
+            set {
+                if (onlyItems != value)
+                {
+                    onlyItems = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
 		// This method is called by the Set accessor of each property.
 		// The CallerMemberName attribute that is applied to the optional propertyName
@@ -106,56 +169,47 @@ namespace LogReader
 			}
 		}
 
-		void Main()
-		{
-		}
-
 		private void btnOpenReader_Click(object sender, RoutedEventArgs e)
 		{
-			LReader reader = new LReader(NDDirectory);
-			reader.Main();
+            
+			//reader.Main();
 		}
 
-		private void btnSecTest_Click(object sender, RoutedEventArgs e)
-		{
-			DirectorySecurity sec = Directory.GetAccessControl(NDDirectory);
-			var acrl = sec.GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount));
-			SecurityIdentifier everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-			sec.AddAccessRule(new FileSystemAccessRule(everyone,
-				FileSystemRights.Modify | FileSystemRights.Synchronize,
-				InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-				PropagationFlags.None, AccessControlType.Allow));
-			Directory.SetAccessControl(NDDirectory, sec);
-		}
+        private void Reader_OnLogEvent(object sender, NecroLogs.OnLogEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(delegate () {
+                if (ShowOnlyItems.HasValue && ShowOnlyItems.Value)
+                {
+                    if (e.Line.Text.StartsWith("ITEM NEW:"))
+                    {
+                        tbStatus.AppendText(string.Format("{0}: {1}\r\n", e.Line.Timestamp, e.Line.Text));
+                    }
+                }
+                else
+                {
+                    tbStatus.AppendText(string.Format("{0}: {1}\r\n", e.Line.Timestamp, e.Line.Text));
+                }
 
-		private void btnReflectionTest_Click(object sender, RoutedEventArgs e)
-		{
-			Type t = typeof(Item);
-			string target = "Player.Inventory";
-			string methodName = "Add";
-			string[] argTypeStrs = new string[] { "Item" };
-			Type[] argTypes = argTypeStrs.Select(s => Type.GetType(s)).ToArray();
-			object[] args = argTypes.Select(t => t.Con)
-			string[] tprops = target.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
-			List<PropertyInfo> pInfos = new List<PropertyInfo>(tprops.Length);
-			object lastObj = this;
-			Type lastType = lastObj.GetType();
-			PropertyInfo lastPI;
-			for (int i = 0; i < tprops.Length; ++i)
-			{
-				lastPI = lastType.GetProperty(tprops[i]);
-				if (lastPI == null)
-					throw new Exception(string.Format("Couldn't find property {0} in {1}", tprops[i], target));
-				pInfos.Add(lastPI);
-				lastType = lastPI.PropertyType;
-				lastObj = lastPI.GetValue(lastObj);
-			}
+                foreach (var alert in alertsObs)
+                {
+                    Regex r = new Regex(alert.Trigger);
+                    if (r.IsMatch(e.Line.Text))
+                    {
+                        tbStatus.AppendText(alert.AlertText);
+                        tbStatus.AppendText("\r\n");
+                    }
+                }
 
-			//Type.GetType
+                if (AutoScroll ?? true)
+                {
+                    //tbStatus.Focus();
+                    tbStatus.CaretIndex = tbStatus.Text.Length;
+                    tbStatus.ScrollToEnd();
 
-			MethodInfo mi = lastType.GetMethod(methodName, argTypes);
-			mi.Invoke(lastObj, )
-		}
+                    svStatus.ScrollToVerticalOffset(svStatus.ExtentHeight - svStatus.ViewportHeight);
+                }
+            }));
+        }
 
 		PlayerObj Player { get; set; }
 
@@ -171,5 +225,17 @@ namespace LogReader
 		{
 
 		}
-	}
+
+        private void btnAddAlert_Click(object sender, RoutedEventArgs e)
+        {
+            alertsObs.Add(new LogAlert() { AlertText = "", Trigger = "" });
+        }
+
+        private void btnRemoveAlert_Click(object sender, RoutedEventArgs e)
+        {
+            object vm = this.DataContext;
+            var button = sender as Button;
+            object item = button.DataContext;
+        }
+    }
 }
