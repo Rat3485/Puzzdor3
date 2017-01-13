@@ -1,5 +1,5 @@
-# Puzzdor3
-Mod for puzzdor 3
+# LogReader
+Something about reading logs and log reading
 
 By: Nick Kooy
 12/27/16
